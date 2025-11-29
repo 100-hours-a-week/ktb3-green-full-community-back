@@ -14,6 +14,7 @@ public enum ErrorCode {
 
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED_USER", "비밀번호가 틀렸습니다."), //401
     UNAUTHORIZED_TOKEN(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED_TOKEN", "유효하지 않은 토큰입니다."), //401
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "ACCESS_DENIED", "권한정보를 확인할 수 없습니다."), //403
 
     POST_UPDATE_FORBIDDEN_USER(HttpStatus.FORBIDDEN, "POST_UPDATE_FORBIDDEN_USER", "해당 게시글에 대한 수정권한이 없는 사용자입니다."), //403
     POST_DELETE_FORBIDDEN_USER(HttpStatus.FORBIDDEN, "POST_DELETE_FORBIDDEN_USER", "해당 게시글에 대한 삭제권한이 없는 사용자입니다."), //403
