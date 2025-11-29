@@ -6,7 +6,7 @@ import com.example.spring_community.Auth.dto.TokenDto;
 import com.example.spring_community.User.domain.UserEntity;
 import com.example.spring_community.Exception.CustomException;
 import com.example.spring_community.Exception.ErrorCode;
-import com.example.spring_community.Auth.jwt.JwtUtils;
+import com.example.spring_community.Auth.jwt.JwtProvider;
 import com.example.spring_community.Auth.dto.LoginDto;
 import com.example.spring_community.User.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,36 +16,44 @@ import org.springframework.stereotype.Service;
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtils jwtUtils;
+    private final JwtProvider jwtProvider;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtUtils = jwtUtils;
+        this.jwtProvider = jwtProvider;
     }
     public AuthUserTokenDto login(LoginDto loginDto) {
-        UserEntity userEntity = findValidUser(loginDto);
-        String accessToken = jwtUtils.createAccessToken(userEntity);
-        String refreshToken = jwtUtils.createRefreshToken(userEntity);
-        String profileImg = userEntity.getProfileImg().getFileName();
+
+        UserEntity user = findValidUser(loginDto);
+
+        String username = String.valueOf(user.getUserId());
+        String authorities = user.getRole().equals("ADMIN") ? "ROLE_ADMIN" : "ROLE_USER";
+
+        TokenDto token = jwtProvider.generateToken(username, authorities);
+
+        String profileImg = user.getProfileImg().getFileName();
 
         return AuthUserTokenDto.builder()
-                .userId(userEntity.getUserId())
+                .userId(user.getUserId())
                 .profileImg(profileImg)
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .accessToken(token.getAccessToken())
+                .refreshToken(token.getRefreshToken())
                 .build();
     }
 
     public TokenDto reissueAccessToken(Long userId, RefreshTokenDto refreshTokenDto) {
-        if(!jwtUtils.verifyToken(refreshTokenDto.getRefreshToken())) {
+        if(!jwtProvider.validateToken(refreshTokenDto.getRefreshToken())) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_TOKEN);
         }
 
-        UserEntity userEntity = userRepository.findById(userId)
+        UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        String newAccessToken = jwtUtils.createAccessToken(userEntity);
+        String username = String.valueOf(user.getUserId());
+        String authorities = user.getRole().equals("ADMIN") ? "ROLE_ADMIN" : "ROLE_USER";
+
+        String newAccessToken = jwtProvider.generateAccessToken(username, authorities);
 
         return TokenDto.builder()
                 .accessToken(newAccessToken)
