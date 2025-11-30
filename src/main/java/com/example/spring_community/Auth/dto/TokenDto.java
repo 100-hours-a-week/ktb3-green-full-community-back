@@ -9,7 +9,7 @@ public class TokenDto {
     private final String accessToken;
     private final String refreshToken;
 
-    @Builder
+    @Builder(toBuilder = true)
     public TokenDto(String accessToken, String refreshToken) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;

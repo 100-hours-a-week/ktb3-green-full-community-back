@@ -28,6 +28,9 @@ public class UserEntity {
     @Column(name = "active", nullable = false)
     private Boolean active;
 
+    @Column(name = "role", nullable = false)
+    private String role;
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "image_id")
     private ImageEntity profileImg;
@@ -35,13 +38,14 @@ public class UserEntity {
     protected UserEntity() {}
 
     @Builder(toBuilder = true)
-    public UserEntity(Long userId, String email, String password, String nickname, ImageEntity profileImg, Boolean active) {
+    public UserEntity(Long userId, String email, String password, String nickname, ImageEntity profileImg, Boolean active, String role) {
         this.userId = userId;
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.profileImg = profileImg;
         this.active = active;
+        this.role = role;
     }
 
     public void setNickname(String nickname) {

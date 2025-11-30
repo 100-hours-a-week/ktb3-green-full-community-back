@@ -1,20 +1,17 @@
 package com.example.spring_community.Post.controller;
 
-import com.example.spring_community.Auth.annotation.AuthUser;
-import com.example.spring_community.Auth.dto.AuthUserDto;
-import com.example.spring_community.Exception.CustomException;
-import com.example.spring_community.Exception.ErrorCode;
+import com.example.spring_community.Auth.dto.CustomUserDetails;
 import com.example.spring_community.Exception.dto.DataResponseDto;
 import com.example.spring_community.Exception.dto.ResponseDto;
 import com.example.spring_community.Post.dto.*;
 import com.example.spring_community.Post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -44,24 +41,24 @@ public class PostController {
 
     @PostMapping
     @Operation(summary = "게시글 생성", description = "새로운 게시글을 생성합니다.")
-    public ResponseEntity<DataResponseDto<NewPostDto>> createPost(@RequestBody NewPostDto newPostDto, @AuthUser AuthUserDto authUserDto) {
-        NewPostDto newPost = postService.createPost(authUserDto.getUserId(), newPostDto);
+    public ResponseEntity<DataResponseDto<NewPostDto>> createPost(@RequestBody NewPostDto newPostDto, @AuthenticationPrincipal CustomUserDetails principal) {
+        NewPostDto newPost = postService.createPost(principal.getUserId(), newPostDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(DataResponseDto.of(HttpStatus.CREATED, "CREATE_POST_SUCCESS", "성공적으로 게시글을 업로드했습니다.", newPost));
     }
 
     @PatchMapping("/{postId}")
     @Operation(summary = "게시글 수정", description = "postId에 해당하는 게시글을 수정합니다.")
-    public ResponseEntity<DataResponseDto<NewPostDto>> updatePost(@PathVariable long postId, @RequestBody UpdatePostDto updatePostDto, @AuthUser AuthUserDto authUserDto) {
-        NewPostDto updatedPost = postService.updatePost(authUserDto.getUserId(), postId, updatePostDto);
+    public ResponseEntity<DataResponseDto<NewPostDto>> updatePost(@PathVariable long postId, @RequestBody UpdatePostDto updatePostDto, @AuthenticationPrincipal CustomUserDetails principal) {
+        NewPostDto updatedPost = postService.updatePost(principal.getUserId(), postId, updatePostDto);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(DataResponseDto.of(HttpStatus.OK, "UPDATE_POST_SUCCESS", "성공적으로 게시글을 수정했습니다.", updatedPost));
     }
 
     @DeleteMapping("/{postId}")
     @Operation(summary = "게시글 삭제", description = "postId에 해당하는 게시글을 삭제합니다.")
-    public ResponseEntity<ResponseDto> deletePost(@PathVariable long postId, @AuthUser AuthUserDto authUserDto) {
-        postService.deletePost(authUserDto.getUserId(), postId);
+    public ResponseEntity<ResponseDto> deletePost(@PathVariable long postId, @AuthenticationPrincipal CustomUserDetails principal) {
+        postService.deletePost(principal.getUserId(), postId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseDto.of(HttpStatus.OK, "DELETE_POST_SUCCESS", "성공적으로 게시글을 삭제했습니다."));
     }

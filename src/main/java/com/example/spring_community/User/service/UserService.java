@@ -12,10 +12,16 @@ import com.example.spring_community.Exception.ErrorCode;
 import com.example.spring_community.User.dto.UserProfileDto;
 import com.example.spring_community.User.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -35,6 +41,11 @@ public class UserService {
         UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         return UserProfileDto.of(userEntity);
+    }
+
+    @Transactional
+    public Page<UserProfileDto> getAllUsersProfile(Pageable pageable) {
+        return userRepository.findAllByOrderByUserIdDesc(pageable).map(UserProfileDto::of);
     }
 
     @Transactional
@@ -99,6 +110,7 @@ public class UserService {
                 .nickname(createUserDto.getNickname())
                 .profileImg(imageEntity)
                 .active(true)
+                .role("USER")
                 .build();
 
         userRepository.save(userEntity);

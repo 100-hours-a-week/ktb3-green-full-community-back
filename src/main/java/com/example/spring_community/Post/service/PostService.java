@@ -14,9 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
 public class PostService {
     private final PostRepository postRepository;
@@ -71,15 +68,6 @@ public class PostService {
         if (!userId.equals(postEntity.getUser().getUserId())) {
             throw new CustomException(ErrorCode.POST_UPDATE_FORBIDDEN_USER);
         }
-
-//        String updateTitle = Optional.ofNullable(updatePostDto.getTitle())
-//                .map(String::trim).filter(s -> !s.isEmpty()).orElse(postEntity.getTitle());
-//
-//        String updateContent = Optional.ofNullable(updatePostDto.getContent())
-//                .map(String::trim).filter(s -> !s.isEmpty()).orElse(postEntity.getContent());
-//
-//        String updatePostImg = Optional.ofNullable(updatePostDto.getPostImg())
-//                .map(String::trim).filter(s -> !s.isEmpty()).orElse(postEntity.getPostImg());
 
         PostEntity newPostEntity = postEntity.toBuilder()
                 .title(updatePostDto.getTitle())
